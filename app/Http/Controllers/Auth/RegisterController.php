@@ -4,8 +4,15 @@ namespace App\Http\Controllers\Auth;
 
 use App\User;
 use App\Http\Controllers\Controller;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Laravel\Passport\Http\Controllers\HandlesOAuthErrors;
+use League\OAuth2\Server\AuthorizationServer;
+use Psr\Http\Message\ServerRequestInterface;
+use Zend\Diactoros\Response as Psr7Response;
 
 class RegisterController extends Controller
 {
@@ -20,7 +27,15 @@ class RegisterController extends Controller
     |
     */
 
-    use RegistersUsers;
+    use RegistersUsers, HandlesOAuthErrors;
+
+
+    /**
+     * The authorization server.
+     *
+     * @var AuthorizationServer
+     */
+    protected $server;
 
     /**
      * Where to redirect users after registration.
@@ -34,9 +49,10 @@ class RegisterController extends Controller
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(AuthorizationServer $server)
     {
         $this->middleware('guest');
+        $this->server = $server;
     }
 
     /**
@@ -70,12 +86,21 @@ class RegisterController extends Controller
     }
 
     /**
-     * Show the application registration form.
+     * Send registration request, then login with and response with access token
+     * @return JsonResponse|\Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
+     * @internal param Request $request
      *
-     * @return \Illuminate\Http\Response
+     * @internal param ServerRequestInterface $serverRequest
+     *
      */
-    public function showRegistrationForm()
+    public function showRegistrationForm(Request $request)
     {
-        return \Illuminate\Http\Response::create(['_token' => csrf_token()]);
+        $this->validator($request->all())->validate();
+
+        event(new Registered($user = $this->create($request->all())));
+
+        $this->guard()->login($user);
+
+        return JsonResponse::create(['success']);
     }
 }

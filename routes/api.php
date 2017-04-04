@@ -21,6 +21,8 @@ Route::middleware('auth:api')->get('/users', function (Request $request) {
     return \App\User::all();
 });
 
-Route::get('/register', 'Auth\RegisterController@showRegistrationForm');
+Route::middleware('auth:api')->post('/update-current', 'Api\UserController@updateCurrent');
 
-Route::post('/register', 'Auth\RegisterController@register');
+Route::middleware('auth:api')->get('/user/{user}', 'Api\UserController@show');
+
+Route::middleware('throttle')->post('/register', 'Auth\RegisterController@registerJson');
