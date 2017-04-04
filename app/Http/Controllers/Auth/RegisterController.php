@@ -93,7 +93,7 @@ class RegisterController extends Controller
      * @internal param ServerRequestInterface $serverRequest
      *
      */
-    public function showRegistrationForm(Request $request)
+    public function registerJson(Request $request)
     {
         $this->validator($request->all())->validate();
 
