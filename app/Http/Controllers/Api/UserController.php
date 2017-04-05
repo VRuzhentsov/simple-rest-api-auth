@@ -12,11 +12,16 @@ class UserController extends Controller
 {
 
     /**
+     * Return list of all users in database
      *
      * @return \Illuminate\Database\Eloquent\Collection|static[]
      */
     public function getAll(){
-        return User::all();
+        return User::all([
+            'name',
+            'last_name',
+            'created_at'
+        ]);
     }
 
     /**

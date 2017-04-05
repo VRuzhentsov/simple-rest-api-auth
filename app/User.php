@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Carbon\Carbon;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Passport\HasApiTokens;
@@ -32,6 +33,12 @@ class User extends Authenticatable
 {
     use HasApiTokens, Notifiable;
 
+    public static $rules = [
+        'name' => 'min:1|max:30',
+        'last_name' => 'min:1|max:30',
+        'email' => 'email|unique:users',
+        'password' => 'min:8|max:20|confirmed'
+    ];
     /**
      * The attributes that are mass assignable.
      *
@@ -42,21 +49,24 @@ class User extends Authenticatable
         'email',
         'password',
     ];
-
     /**
      * The attributes that should be hidden for arrays.
      *
      * @var array
      */
     protected $hidden = [
-        'email',
         'password',
         'remember_token',
     ];
 
-    public static $rules = [
-        'name' => 'min:5|max:20',
-        'email' => 'email|unique:users',
-        'password' => 'min:8|max:20|confirmed'
-    ];
+    /**
+     * Pretty format register date
+     *
+     * @param $value
+     * @return string
+     */
+    public function getCreatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->format('d M Y');
+    }
 }

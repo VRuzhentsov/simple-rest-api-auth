@@ -27,7 +27,7 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        Passport::routes(null, ['middleware' => 'auth:api']);
+        Passport::routes();
 
         Passport::enableImplicitGrant();
 
