@@ -13,16 +13,15 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::post('/register', 'Auth\RegisterController@registerJson')->middleware('auth.client');
+
+Route::group(['middleware' => 'auth:api'], function(){
+    Route::get('/user', function (Request $request) {return $request->user();});
+
+    Route::get('/users', 'Api\UserController@getAll');
+
+    Route::post('/update-current', 'Api\UserController@updateCurrent');
+
+    Route::get('/user/{user}', 'Api\UserController@show');
+
 });
-
-Route::middleware('auth:api')->get('/users', function (Request $request) {
-    return \App\User::all();
-});
-
-Route::middleware('auth:api')->post('/update-current', 'Api\UserController@updateCurrent');
-
-Route::middleware('auth:api')->get('/user/{user}', 'Api\UserController@show');
-
-Route::middleware('throttle')->post('/register', 'Auth\RegisterController@registerJson');
